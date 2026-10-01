@@ -1,0 +1,131 @@
+/* =============================================================================
+   Button
+   -----------------------------------------------------------------------------
+   Every value below is a token reference. There is not a single raw colour,
+   radius, height or padding value in this file — that is what makes Experiment
+   A (change --button-height-md) affect Buttons everywhere at once.
+   ============================================================================= */
+
+.sei-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  text-align: center;
+  white-space: nowrap;
+
+  /* --button-radius defaults to the --radius-md primitive, resolved at the point
+     of use so an override of either one takes effect. See tokens.css. */
+  border-radius: var(--button-radius, var(--radius-md));
+  border: var(--border-width) solid transparent;
+
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.sei-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.sei-button:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+/* --- size ------------------------------------------------------------------- */
+
+.sei-button--sm {
+  height: var(--button-height-sm);
+  padding-inline: var(--button-padding-x-sm);
+  font-size: var(--button-font-size-sm);
+}
+
+.sei-button--md {
+  height: var(--button-height-md);
+  padding-inline: var(--button-padding-x-md);
+  font-size: var(--button-font-size-md);
+}
+
+.sei-button--lg {
+  height: var(--button-height-lg);
+  padding-inline: var(--button-padding-x-lg);
+  font-size: var(--button-font-size-lg);
+}
+
+/* --- variant: primary -------------------------------------------------------
+   Uses the shared `action` role. Changing --color-action moves every primary
+   button in every composition (Experiment C). */
+.sei-button--primary {
+  background-color: var(--color-action);
+  color: var(--color-action-text);
+  border-color: var(--color-action);
+}
+
+.sei-button--primary:hover:not(:disabled) {
+  background-color: var(--color-action-hover);
+  border-color: var(--color-action-hover);
+}
+
+.sei-button--primary:active:not(:disabled) {
+  background-color: var(--color-action-active);
+  border-color: var(--color-action-active);
+}
+
+/* --- variant: secondary -----------------------------------------------------
+   Quiet by default. Uses the `surface` roles so it tracks the page. */
+.sei-button--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.sei-button--secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.sei-button--secondary:active:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+/* --- variant: destructive ----------------------------------------------------
+   Irreversible actions. The colour role is `destructive`, never `action`. */
+.sei-button--destructive {
+  background-color: var(--color-destructive);
+  color: var(--color-destructive-text);
+  border-color: var(--color-destructive);
+}
+
+.sei-button--destructive:hover:not(:disabled) {
+  background-color: var(--color-destructive-hover);
+  border-color: var(--color-destructive-hover);
+}
+
+.sei-button--destructive:active:not(:disabled) {
+  background-color: var(--color-destructive-hover);
+  border-color: var(--color-destructive-hover);
+}
+
+/* --- variant: ghost ----------------------------------------------------------
+   No chrome until interacted with. */
+.sei-button--ghost {
+  background-color: transparent;
+  color: var(--color-action);
+  border-color: transparent;
+}
+
+.sei-button--ghost:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+}
+
+.sei-button--ghost:active:not(:disabled) {
+  background-color: var(--color-surface-hover);
+}

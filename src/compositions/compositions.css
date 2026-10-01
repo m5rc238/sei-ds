@@ -1,0 +1,106 @@
+/* =============================================================================
+   Compositions
+   -----------------------------------------------------------------------------
+   Layout and rhythm only. These files contain no colours, no radii and no
+   control sizing — every such value comes from a token, which is why changing
+   a token visibly moves these interfaces.
+   ============================================================================= */
+
+.sei-composition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+  max-width: var(--measure-form);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+
+.sei-composition__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+
+.sei-composition__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.sei-composition__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sei-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-gap);
+}
+
+.sei-form__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sei-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+.sei-form__note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.sei-settings__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+.sei-settings__option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.sei-settings__option-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sei-settings__option-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.sei-settings__option-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---- page shell used by Storybook to host compositions ------------------- */
+
+.sei-canvas {
+  padding: var(--space-6);
+  background-color: var(--color-surface-subtle);
+  font-family: var(--font-family);
+}
+
+.sei-canvas--surface {
+  background-color: var(--color-surface);
+}
+
+.sei-canvas__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+}

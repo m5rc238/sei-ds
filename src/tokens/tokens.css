@@ -1,0 +1,183 @@
+/* =============================================================================
+   Sei Design System — primitives
+   -----------------------------------------------------------------------------
+   Raw values with no opinion about where they are used. Nothing in a component
+   may reference this layer directly — only the semantic layer below.
+   ============================================================================= */
+
+:root {
+  /* --- colour ---------------------------------------------------------------
+     A deliberately small ramp. Adding a shade is a decision; do it only when a
+     semantic role cannot be served by what is already here. */
+  --white: #ffffff;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+
+  --red-50: #fef2f2;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+
+  /* --- spacing --------------------------------------------------------------
+     4px base. Steps are included only where a real composition needs them. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* --- radius --------------------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* --- typography ----------------------------------------------------------- */
+  --font-family:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* --- border --------------------------------------------------------------- */
+  --border-width: 1px;
+  --border-width-strong: 2px;
+
+  /* --- layout ---------------------------------------------------------------
+     A content measure. Forms and settings panels stop widening at this point
+     because long line lengths are hard to scan; it is a decision, so it is a
+     token rather than a number in a stylesheet. */
+  --measure-form: 480px;
+
+  /* --- motion ---------------------------------------------------------------
+     Short and unobtrusive. Exposed as a token because transition *duration*
+     is a design decision that affects every component. */
+  --duration-fast: 120ms;
+  --duration-medium: 180ms;
+}
+
+/* =============================================================================
+   Sei Design System — semantic layer
+   -----------------------------------------------------------------------------
+   Roles, not values. Components consume THIS layer and never the primitives
+   above. Changing a value here is what the Experiment section is about:
+   change a semantic token and every consumer of that role updates together.
+
+   Rule of thumb for adding to this block: if you cannot name the role a token
+   plays, it does not belong here yet.
+   ============================================================================= */
+
+:root {
+  /* --- surface -------------------------------------------------------------- */
+  --color-surface: var(--white);
+  --color-surface-subtle: var(--gray-50);
+  --color-surface-hover: var(--gray-100);
+
+  /* --- text ----------------------------------------------------------------- */
+  --color-text: var(--gray-900);
+  --color-text-muted: var(--gray-500);
+  --color-text-inverted: var(--white);
+
+  /* --- border --------------------------------------------------------------- */
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-400);
+
+  /* --- action: the primary interactive role --------------------------------- */
+  --color-action: var(--blue-500);
+  --color-action-hover: var(--blue-600);
+  --color-action-active: var(--blue-700);
+  --color-action-text: var(--white);
+
+  /* --- destructive: irreversible actions ------------------------------------ */
+  --color-destructive: var(--red-600);
+  --color-destructive-hover: var(--red-700);
+  --color-destructive-text: var(--white);
+  --color-destructive-surface: var(--red-50);
+
+  /* --- focus: one role, used by every focusable component ------------------- */
+  --color-focus-ring: var(--blue-600);
+  --focus-ring-width: var(--border-width-strong);
+  --focus-ring-offset: var(--space-1);
+
+  /* --- input ---------------------------------------------------------------- */
+  --color-input-surface: var(--white);
+  --color-input-border: var(--gray-200);
+  --color-input-border-hover: var(--gray-400);
+  --color-input-placeholder: var(--gray-400);
+
+  /* =============================================================================
+     Component tokens
+     -----------------------------------------------------------------------------
+     Per-component roles. These exist so a single decision (button height,
+     radius, padding) has exactly one owner. Experiments A and B change these.
+     ============================================================================= */
+
+  /* --- button --------------------------------------------------------------- */
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+  --button-padding-x-sm: var(--space-3);
+  --button-padding-x-md: var(--space-4);
+  --button-padding-x-lg: var(--space-5);
+  --button-font-size-sm: var(--font-size-sm);
+  --button-font-size-md: var(--font-size-md);
+  --button-font-size-lg: var(--font-size-lg);
+
+  /* --- input ---------------------------------------------------------------- */
+  --input-height: 40px;
+  --input-padding-x: var(--space-3);
+  --input-font-size: var(--font-size-md);
+  --input-gap: var(--space-2);
+
+  /* --- card ----------------------------------------------------------------- */
+  --card-padding: var(--space-6);
+  --card-border-width: var(--border-width);
+  --card-gap: var(--space-4);
+
+  /* --- composition ---------------------------------------------------------- */
+  --form-gap: var(--space-4);
+  --stack-gap: var(--space-6);
+
+  /* --- state ----------------------------------------------------------------
+     Disabled surfaces are not "a bit of grey" — the opacity is part of the
+     decision about how unavailable a control should look. */
+  --opacity-disabled: 0.55;
+
+  /* =============================================================================
+     Radius aliases are NOT declared here
+     -----------------------------------------------------------------------------
+     A note on why --button-radius, --input-radius and --card-radius are absent.
+
+     Writing `--button-radius: var(--radius-md)` in this :root block looks like
+     the right way to express the dependency, but it breaks the Playground. The
+     alias resolves once, here, at the root: --radius-md is 8px at this point, so
+     --button-radius computes to 8px and every descendant inherits that computed
+     8px. Setting --radius-md to 12px further down the tree changes the
+     primitive but has no effect on the already-resolved alias.
+
+     So each component declares its own dependency at the point of use:
+
+         border-radius: var(--button-radius, var(--radius-md));
+
+     The inner var() is the default, resolved where it is used, so overriding
+     either the primitive or the component token works. This is why Experiments
+     A and B behave as advertised.
+     ============================================================================= */
+}

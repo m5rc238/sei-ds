@@ -1,0 +1,76 @@
+/* =============================================================================
+   Input
+   -----------------------------------------------------------------------------
+   Token references only. --input-height and --input-radius are single owners,
+   so changing either moves every Input in every composition.
+   ============================================================================= */
+
+.sei-input__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--input-gap);
+}
+
+.sei-input__label {
+  /* label styling, from globals.css baseline */
+  display: block;
+}
+
+.sei-input {
+  width: 100%;
+  height: var(--input-height);
+  padding-inline: var(--input-padding-x);
+
+  background-color: var(--color-input-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-input-border);
+  border-radius: var(--input-radius, var(--radius-md));
+
+  font-size: var(--input-font-size);
+  line-height: var(--line-height-normal);
+
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.sei-input::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+.sei-input:hover:not(:disabled) {
+  border-color: var(--color-input-border-hover);
+}
+
+.sei-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-focus-ring);
+}
+
+.sei-input:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+/* --- error ------------------------------------------------------------------
+   Reuses the destructive colour role so an error and a destructive button
+   cannot drift apart. */
+.sei-input--error {
+  border-color: var(--color-destructive);
+}
+
+.sei-input--error:focus-visible {
+  border-color: var(--color-destructive);
+  outline-color: var(--color-destructive);
+}
+
+.sei-input__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.sei-input__error {
+  font-size: var(--font-size-sm);
+  color: var(--color-destructive);
+}
