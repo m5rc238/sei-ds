@@ -152,3 +152,24 @@ Stated plainly, because a demo that hides its edges is worse than no demo.
 - **No dark mode or theme switching.** The token structure would support it, but
   it is out of scope and unbuilt.
 - **Latin text only.** No i18n or RTL work has been done.
+
+## Explorer
+
+The design system graph explorer visualizes dependencies between tokens, components, variants, states, and stories as an interactive graph.
+
+- **Storybook**: `npm run storybook` → `Design System/Explorer`
+- **Regenerate graph**: `npm run sei:graph` (deterministic, source-derived)
+- **Query API**: `src/graph/query.ts` (`findNodes`, `getUpstream`, `getDownstream`, `getImpact`, `getFallbacks`)
+- **Data**: `.sei/graph.json` (canonical graph with evidence)
+
+# About this project
+
+This is a tiny design system that makes a single point clearly: **changing one token changes exactly what the design says it should change, no more and no less.**
+
+Three experiments (A: button height, B: radius defaults, C: brand action color) demonstrate:
+- Decisions live at the right layer (primitives → semantic → component tokens)
+- Component-level tokens let controls differ from surfaces
+- Dependencies are explicit (fallbacks via `var(..., fallback)` not root aliases)
+- Evidence-based graph captures those relationships for inspection and reasoning
+
+The Explorer UI visualizes the canonical graph (tokens/components/variants/states/stories + reference/usage/fallback/variant/state/story/composition) with React Flow + Dagre. The graph is source-derived, deterministic, and includes file:line evidence for every relationship.

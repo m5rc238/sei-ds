@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sei Design System — built to make the consequences of design decisions visible in real interfaces.",
+  "description": "Sei Design System \u2014 built to make the consequences of design decisions visible in real interfaces.",
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && npm run build-storybook",
     "verify": "node scripts/verify.mjs",
-    "chromatic": "npm run build-storybook && npx chromatic"
+    "chromatic": "npm run build-storybook && npx chromatic",
+    "sei:graph": "node scripts/sei-graph.ts"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.1.1",
+    "@xyflow/react": "^12.12.0",
+    "postcss": "^8.5.28",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

@@ -7,7 +7,7 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-  staticDirs: [],
+  staticDirs: [{ from: "../.sei", to: "/sei" }],
   // reactDocgen is left on (the default) because the autodocs prop tables are
   // part of what makes these stories reviewable.
   typescript: {
