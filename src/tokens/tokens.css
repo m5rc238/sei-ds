@@ -22,10 +22,23 @@
   --blue-500: #3b82f6;
   --blue-600: #2563eb;
   --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
 
   --red-50: #fef2f2;
   --red-600: #dc2626;
   --red-700: #b91c1c;
+
+  /* --- elevation ------------------------------------------------------------
+     One shadow. Popovers, menus and dialogs share it because "how elevated a
+     floating surface looks" is one decision, not three. Deepened so floating
+     surfaces read as clearly elevated above elevated cards. */
+  --shadow-md: 0 8px 24px rgb(17 24 39 / 0.16);
+
+  /* --- scrim ----------------------------------------------------------------
+     The overlay behind dialogs. Alpha is part of the value: a scrim is a
+     colour with a transparency decision baked in, not a colour plus an
+     opacity applied by the consumer. */
+  --gray-900-a55: rgb(17 24 39 / 0.55);
 
   /* --- spacing --------------------------------------------------------------
      4px base. Steps are included only where a real composition needs them. */
@@ -100,9 +113,12 @@
   --color-border-strong: var(--gray-400);
 
   /* --- action: the primary interactive role --------------------------------- */
-  --color-action: var(--blue-500);
-  --color-action-hover: var(--blue-600);
-  --color-action-active: var(--blue-700);
+  /* Blue-600, not blue-500: white text on this fill and this colour as text
+     on white both clear WCAG AA (4.5:1) at the 16px button size. The ramp
+     steps down through 700/800 for hover/active. */
+  --color-action: var(--blue-600);
+  --color-action-hover: var(--blue-700);
+  --color-action-active: var(--blue-800);
   --color-action-text: var(--white);
 
   /* --- destructive: irreversible actions ------------------------------------ */
@@ -115,6 +131,21 @@
   --color-focus-ring: var(--blue-600);
   --focus-ring-width: var(--border-width-strong);
   --focus-ring-offset: var(--space-1);
+
+  /* --- elevation and overlay: system-wide floating-surface decisions -------- */
+  --shadow-elevated: var(--shadow-md);
+  --color-overlay: var(--gray-900-a55);
+
+  /* Stacking. Two levels only: a scrim sits above page content, anything
+     that floats (dialog content, menus, selects, tooltips) sits above the
+     scrim. Components reference these instead of inventing z-index numbers,
+     so "what is on top" stays a system decision. */
+  --z-overlay: 900;
+  --z-popup: 1000;
+
+  /* --- tooltip -------------------------------------------------------------- */
+  --color-tooltip-surface: var(--gray-900);
+  --color-tooltip-text: var(--white);
 
   /* --- input ---------------------------------------------------------------- */
   --color-input-surface: var(--white);
@@ -147,9 +178,35 @@
   --input-gap: var(--space-2);
 
   /* --- card ----------------------------------------------------------------- */
-  --card-padding: var(--space-6);
+  --card-padding: var(--space-8);
   --card-border-width: var(--border-width);
   --card-gap: var(--space-4);
+
+  /* --- dialog --------------------------------------------------------------- */
+  --dialog-width: 480px;
+  --dialog-padding: var(--space-6);
+
+  /* --- menu ----------------------------------------------------------------- */
+  --menu-padding: var(--space-1);
+  --menu-min-width: 192px;
+  --menu-item-padding-x: var(--space-3);
+
+  /* --- tabs ----------------------------------------------------------------- */
+  --tabs-padding-x: var(--space-4);
+  --tabs-indicator-height: var(--border-width-strong);
+
+  /* --- tooltip -------------------------------------------------------------- */
+  --tooltip-padding-x: var(--space-2);
+  --tooltip-padding-y: var(--space-1);
+  --tooltip-max-width: 260px;
+
+  /* --- checkbox ------------------------------------------------------------- */
+  --checkbox-size: 16px;
+
+  /* --- table ---------------------------------------------------------------- */
+  --table-cell-padding-x: var(--space-3);
+  --table-cell-padding-y: var(--space-2);
+  --table-header-font-size: var(--font-size-sm);
 
   /* --- composition ---------------------------------------------------------- */
   --form-gap: var(--space-4);
@@ -163,7 +220,10 @@
   /* =============================================================================
      Radius aliases are NOT declared here
      -----------------------------------------------------------------------------
-     A note on why --button-radius, --input-radius and --card-radius are absent.
+     A note on why --button-radius, --input-radius, --card-radius, --menu-radius,
+     --dialog-radius and --tooltip-radius are absent. (The same point-of-use
+     pattern covers --select-height and friends: Select derives from the Input
+     tokens rather than declaring copies.)
 
      Writing `--button-radius: var(--radius-md)` in this :root block looks like
      the right way to express the dependency, but it breaks the Playground. The

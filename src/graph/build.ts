@@ -20,17 +20,18 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { SeiGraphBuilder } from './graph';
-import { analyzeTokens } from './analyzers/css/tokens';
-import { analyzeUsage } from './analyzers/css/usage';
-import { analyzeCssVariants } from './analyzers/css/variants';
-import { parseCss, type ParsedCss } from './analyzers/css/parse';
-import { analyzeComponents } from './analyzers/ts/components';
-import { analyzeStories } from './analyzers/ts/stories';
-import { createProgram } from './analyzers/ts/program';
-import { componentId } from './ids';
-import type { SeiGraph } from './types';
-import type { RepoPath } from './types';
+import { SeiGraphBuilder } from './graph.ts';
+import { analyzeTokens } from './analyzers/css/tokens.ts';
+import { analyzeUsage } from './analyzers/css/usage.ts';
+import { analyzeCssVariants } from './analyzers/css/variants.ts';
+import { parseCss, type ParsedCss } from './analyzers/css/parse.ts';
+import { analyzeComponents } from './analyzers/ts/components.ts';
+import { analyzeContracts } from './analyzers/ts/contracts.ts';
+import { analyzeStories } from './analyzers/ts/stories.ts';
+import { createProgram } from './analyzers/ts/program.ts';
+import { componentId } from './ids.ts';
+import type { SeiGraph } from './types.ts';
+import type { RepoPath } from './types.ts';
 
 export type BuildOptions = {
   repoRoot: string;
@@ -70,6 +71,7 @@ export function buildGraph(options: BuildOptions): BuildResult {
   const cssFiles = listFiles(repoRoot, sourceDir, (name) => name.endsWith('.css'));
   const componentFiles = listFiles(repoRoot, sourceDir, (name) => /\.tsx$/.test(name) && !/\.stories\.tsx$/.test(name));
   const storyFiles = listFiles(repoRoot, sourceDir, (name) => name.endsWith('.stories.tsx'));
+  const contractFiles = listFiles(repoRoot, sourceDir, (name) => name.endsWith('.contract.ts'));
 
   const builder = new SeiGraphBuilder();
 
@@ -95,6 +97,11 @@ export function buildGraph(options: BuildOptions): BuildResult {
 
   // --- 3. components + stylesheet ownership -----------------------------
   const components = analyzeComponents(builder, program, checker, repoRoot, componentFiles);
+
+  // --- 3b. contract evidence --------------------------------------------
+  // A component that imports its contract gets the contract's variant, modifier
+  // and state lists as evidence, attributed at their literal positions.
+  analyzeContracts(program, repoRoot, contractFiles, components);
 
   // --- 4. tokens: declaration nodes, layers, aliases --------------------
   analyzeTokens(builder, stylesheets, conditionalSelectors);
@@ -152,7 +159,7 @@ export function buildGraph(options: BuildOptions): BuildResult {
 
   return {
     graph: builder.build(),
-    filesRead: { css: cssFiles, ts: [...componentFiles, ...storyFiles] },
+    filesRead: { css: cssFiles, ts: [...componentFiles, ...storyFiles, ...contractFiles] },
   };
 }
 

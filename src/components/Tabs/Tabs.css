@@ -1,0 +1,63 @@
+/* =============================================================================
+   Tabs
+   -----------------------------------------------------------------------------
+   The active indicator is the bottom border of [data-state="active"] — no
+   absolutely-positioned sliding element, so the indicator can never desync
+   from the selected tab.
+   ============================================================================= */
+
+.sei-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.sei-tabs__list {
+  display: flex;
+  gap: var(--space-1);
+
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.sei-tabs__trigger {
+  padding: var(--space-2) var(--tabs-padding-x);
+
+  background: transparent;
+  border: none;
+  border-bottom: var(--tabs-indicator-height) solid transparent;
+  margin-bottom: calc(var(--border-width) * -1);
+
+  color: var(--color-text-muted);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.sei-tabs__trigger:hover:not(:disabled):not([data-state='active']) {
+  color: var(--color-text);
+}
+
+.sei-tabs__trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: calc(var(--focus-ring-offset) * -1);
+}
+
+.sei-tabs__trigger:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+.sei-tabs__trigger[data-state='active'] {
+  color: var(--color-action);
+  border-bottom-color: var(--color-action);
+}
+
+.sei-tabs__panel {
+  padding-block: var(--space-4);
+}
+
+.sei-tabs__panel:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

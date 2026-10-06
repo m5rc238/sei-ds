@@ -9,8 +9,8 @@
 import path from 'node:path';
 import ts from 'typescript';
 
-import { toRepoPath } from '../../ids';
-import type { SourceLocation } from '../../types';
+import { toRepoPath } from '../../ids.ts';
+import type { SourceLocation } from '../../types.ts';
 
 export type { SourceLocation };
 

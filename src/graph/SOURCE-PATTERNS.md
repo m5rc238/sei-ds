@@ -91,7 +91,7 @@ net. It is the only place that dependency is expressed.
 
 ## 4. Token-to-token aliasing
 
-19 declarations use `var()` as their value (e.g. `--color-action: var(--blue-500)`).
+19 declarations use `var()` as their value (e.g. `--color-action: var(--blue-600)`).
 Aliases are preserved as `reference` edges, never flattened (§9). A token may
 have several referenced aliases (`--color-focus-ring: var(--blue-600)` and
 `--color-action-hover: var(--blue-600)` both point at `--blue-600`).
@@ -203,3 +203,92 @@ imported identifier:
 | `var()` in `globals.css` / `compositions.css` | No single owning component. |
 | `StyleProvider` runtime token writes | Runtime, not a static dependency. |
 | Same-name tokens in different scopes | Does not occur in this repository. |
+
+---
+
+# 11. Post-audit updates — recorded as the system grew
+
+§1–10 describe the repository as audited. This section records the changes
+that followed, so the analyzer's current behaviour has a source-anchored
+description. Where a claim here differs from §1–10, this section wins.
+
+## 11.1 Component inventory
+
+The five-component system is now ten components (Button, Card, Input,
+Checkbox, Select, Dialog, DropdownMenu, Tabs, Tooltip, Table) plus two
+compositions (SettingsPanel, AccountForm). Every component ships `.tsx`,
+`.css`, `.stories.tsx`, `index.ts`.
+
+## 11.2 Contracts — a third evidence source
+
+Each component re-exports a `defineContract()`-defined `*.contract.ts`
+(`src/contracts/`, barrel `src/contracts/index.ts`, framework in
+`src/contracts/types.ts`). `component:...` nodes can now carry `origin:
+'contract'` evidence in addition to `origin: 'css'` / `'ts'`: the contract
+declares `rootClass`, `foundation`, `props`, `modifiers` and `states`, and
+those declarations are themselves source facts. Structural binding (which
+component owns which contract) is resolved by import/export specifiers
+against the component directory, mirroring §6's barrel rule — never by name
+similarity — so the graph sees `dropdownMenuContract` under
+`src/components/DropdownMenu/` whether or not the names match.
+
+## 11.3 States now include data attributes
+
+The state node set was previously pseudo-class-only (§8). Radix-driven
+components style states with attributes, so `analyzeSelector` (in
+`src/graph/analyzers/css/variants.ts`) now also extracts:
+
+- `[data-state='X']` values (Radix: `open`, `closed`, `active`, `inactive`,
+  `checked`, `unchecked`, `delayed-open`, `instant-open`, …) as state names;
+- bare presence attributes `[data-highlighted]` / `[data-disabled]` as the
+  state `highlighted` / `disabled`, giving Menu and Select items their states.
+
+`UNKNOWN` guard: the extraction runs on a copy of the selector with
+`:not()/:is()/:where()/:has()` contents stripped, so a `:not([data-state='active'])`
+exclusion never yields a spurious `active` claim (§3.1: no name-only
+matching).
+
+## 11.4 Element-scoped state rules attribute to the block
+
+Radix styles states on child elements — `.sei-tabs__trigger[data-state='active']`,
+`.sei-menu__item[data-highlighted]`, `.sei-dialog[data-state='open']`. The
+element gate in `analyzeSelector` was narrowed so a rule with an element
+scope still attributes its states to the component root: state collection
+(attribute + state pseudo-class) runs regardless of elements, and only the
+`--modifier` extraction loop skips element-scoped rules. This is why a
+contract state like Tabs' `active` has merged CSS + contract evidence.
+
+## 11.5 baseClassOf (css/variants)
+
+A lookbehind-based `baseClassOf` returned `''` for `.sei-input:hover` (nothing
+before the colon but the class), dropping every plain-selector state. The
+plain branch now extracts the first dot-prefixed class
+(`/\.(?=[a-z])([a-z][a-z0-9-]*)/`), and BEM element parts contribute the
+block prefix (`sei-select__trigger` → `sei-select`); `--` modifier segments
+are skipped.
+
+## 11.6 findRootClasses — class-context only
+
+A root class is recorded only when the name appears in a class **context** —
+a member of an array literal or a JSX `className`/`class` attribute value.
+Anything else is ignored, which prevents values like `position="popper"`
+(Select) from being mistaken for a root class and killing every piece of that
+component's CSS evidence. BEM element names (`.sei-checkbox__box`) still
+contribute their block prefix.
+
+## 11.7 Design-value cleanliness of the new components
+
+Extending the §"no raw design values" scan to `.sei-checkbox`, `.sei-select`,
+`.sei-dialog`, `.sei-menu`, `.sei-tabs`, `.sei-tooltip`, `.sei-table` turned
+up two offenders, both fixed at the source:
+
+- **Tooltip** `max-width: 260px` → tokenized as `--tooltip-max-width`
+  (`src/tokens/tokens.css`, component layer).
+- **Checkbox** checkmark drawn as `::after` border with raw `4px/8px` →
+  replaced by an inline SVG sibling (`aria-hidden`, `focusable=false`). Icon
+  geometry now lives in the JSX viewBox — the same place Select keeps its
+  chevron — so the stylesheet holds no raw pixel values. `visibility` (not
+  `opacity`) toggles the check row, keeping disabled states consistent.
+
+`border-collapse: collapse` and `border-spacing` are excluded as structural
+table mechanics, not design decisions (same class as `display`).

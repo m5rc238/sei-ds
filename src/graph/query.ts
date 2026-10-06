@@ -12,7 +12,7 @@
  *     cycle-safe and deterministic.
  */
 
-import type { EdgeType, SeiGraph, SeiNode } from './types';
+import type { EdgeType, SeiGraph, SeiNode } from './types.ts';
 
 export type TraversalOptions = {
   /**

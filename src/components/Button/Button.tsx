@@ -1,8 +1,10 @@
 import type { ButtonHTMLAttributes } from 'react';
+import { buttonContract } from '../../contracts/button.contract';
+import type { ButtonVariant, ButtonSize } from '../../contracts/button.contract';
 import './Button.css';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export { buttonContract };
+export type { ButtonVariant, ButtonSize };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual role. Decides which semantic colour tokens apply. */

@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import {
-  Background,
-  Controls,
   ReactFlow,
   ReactFlowProvider,
+  Background,
+  Controls,
   MiniMap,
-  useEdgesState,
   useNodesState,
+  useEdgesState,
+  type Node as FlowNode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { graphToReactFlow } from '../graph/reactFlowAdapter';
 import { layoutGraph } from '../graph/layout';
-import type { SeiGraph } from '../graph/types';
+import type { SeiGraph, SeiNode } from '../graph/types';
 import { createQuery } from '../graph/query';
 
 export type GraphExplorerProps = {
@@ -51,12 +53,12 @@ function GraphExplorerInner({ graph, onSelect }: GraphExplorerProps) {
     };
   }, [graph, query, selectedId]);
 
-  const onNodeClick = (_: any, node: any) => {
+  const onNodeClick = (_event: ReactMouseEvent, node: FlowNode) => {
     setSelectedId(node.id);
     onSelect?.(node.id);
   };
 
-  const show = (n: any) => (n.type === 'token' ? `--${n.tokenName}` : n.name);
+  const show = (n: SeiNode) => (n.type === 'token' ? `--${n.tokenName}` : n.name);
 
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%' }}>
@@ -96,7 +98,7 @@ function GraphExplorerInner({ graph, onSelect }: GraphExplorerProps) {
             <div>
               <h4>Upstream ({selectionInfo.upstream.length})</h4>
               <ul style={{ paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
-                {selectionInfo.upstream.map((n: any) => (
+                {selectionInfo.upstream.map((n: SeiNode) => (
                   <li key={n.id}>{show(n)}</li>
                 ))}
               </ul>
@@ -107,7 +109,7 @@ function GraphExplorerInner({ graph, onSelect }: GraphExplorerProps) {
             <div>
               <h4>Downstream ({selectionInfo.downstream.length})</h4>
               <ul style={{ paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
-                {selectionInfo.downstream.map((n: any) => (
+                {selectionInfo.downstream.map((n: SeiNode) => (
                   <li key={n.id}>{show(n)}</li>
                 ))}
               </ul>
@@ -118,7 +120,7 @@ function GraphExplorerInner({ graph, onSelect }: GraphExplorerProps) {
             <div>
               <h4>Impact ({selectionInfo.impact.length})</h4>
               <ul style={{ paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
-                {selectionInfo.impact.map((n: any) => (
+                {selectionInfo.impact.map((n: SeiNode) => (
                   <li key={n.id}>{show(n)}</li>
                 ))}
               </ul>

@@ -1,0 +1,63 @@
+/* =============================================================================
+   Dropdown menu
+   -----------------------------------------------------------------------------
+   The floating surface uses the shared elevation and stacking tokens; the
+   highlighted and disabled rows are the [data-highlighted] and [data-disabled]
+   styles — Radix sets those attributes, we only paint them.
+   ============================================================================= */
+
+.sei-menu {
+  min-width: var(--menu-min-width);
+  padding: var(--menu-padding);
+
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  /* Point-of-use alias; see the tokens.css note on radius aliases. */
+  border-radius: var(--menu-radius, var(--radius-md));
+  box-shadow: var(--shadow-elevated);
+  z-index: var(--z-popup);
+}
+
+.sei-menu[data-state='open'] {
+  animation: sei-menu-in var(--duration-fast) ease;
+}
+
+@keyframes sei-menu-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sei-menu__label {
+  padding: var(--space-2) var(--menu-item-padding-x) var(--space-1);
+
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.sei-menu__item {
+  padding: var(--space-2) var(--menu-item-padding-x);
+
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-tight);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.sei-menu__item[data-highlighted] {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.sei-menu__item[data-disabled] {
+  color: var(--color-text-muted);
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}

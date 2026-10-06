@@ -6,7 +6,7 @@
  * unchanged source produces byte-identical ids (§3.3, §19).
  */
 
-import type { RepoPath } from './types';
+import type { RepoPath } from './types.ts';
 
 /**
  * Normalize a path to repository-relative POSIX.

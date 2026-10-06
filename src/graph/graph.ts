@@ -10,7 +10,7 @@
  * the Explorer project a focused subgraph without mutating the graph (§21).
  */
 
-import { byId, byLocation, dedupeLocations, edgeId } from './ids';
+import { byId, byLocation, dedupeLocations, edgeId } from './ids.ts';
 import {
   GRAPH_SCHEMA_VERSION,
   type Diagnostic,
@@ -18,7 +18,7 @@ import {
   type SeiGraph,
   type SeiNode,
   type SourceLocation,
-} from './types';
+} from './types.ts';
 
 export class SeiGraphBuilder {
   readonly #nodes = new Map<string, SeiNode>();

@@ -27,6 +27,10 @@
   },
   "include": [
     "src",
-    ".storybook"
+    ".storybook",
+    "tests",
+    "e2e",
+    "vitest.config.ts",
+    "playwright.config.ts"
   ]
 }

@@ -23,12 +23,12 @@
  * read when `--button-radius` is absent (§11).
  */
 
-import type { SeiGraphBuilder } from '../../graph';
-import type { ParsedCss } from './parse';
-import { extractVarReferences } from './parse';
-import { tokenId, variantNodeId } from '../../ids';
-import type { RepoPath } from '../../types';
-import { modifiersIn } from '../ts/components';
+import type { SeiGraphBuilder } from '../../graph.ts';
+import type { ParsedCss } from './parse.ts';
+import { extractVarReferences } from './parse.ts';
+import { tokenId, variantNodeId } from '../../ids.ts';
+import type { RepoPath } from '../../types.ts';
+import { modifiersIn } from '../ts/components.ts';
 
 export type StyleSheetOwner = {
   /** Component id that imports this stylesheet. */

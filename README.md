@@ -1,175 +1,241 @@
 # Sei Design System
 
-A small design system built for one purpose: to make the consequences of design
-decisions visible in real interfaces.
-
-Every value in every component is a CSS custom property reference. There is no
-styling library, no component library, and no build-time token pipeline — a
-palette change is a one-line edit, and the effect is something you can point at.
+A small design system engineered as a lab: every design decision has a single
+owner, and every decision's consequences are made visible — by code, by tests,
+by a dependency graph with file-and-line evidence, and by Chromatic diffs on
+every pull request.
 
 ```
-tokens  →  components  →  compositions  →  Storybook Playground  →  Chromatic
+tokens  →  components  →  compositions  →  Storybook  →  tests / Chromatic
 ```
 
-## Running it
+There is no styling library, no component library, no Tailwind, and no
+build-time token pipeline. Tokens are CSS custom properties; components are
+hand-written React + CSS; the "build step" is **analysis**, not compilation.
+
+## Quickstart
 
 ```bash
 npm install
 npm run storybook        # http://localhost:6006
 ```
 
-```bash
-npm run typecheck        # tsc --noEmit
-npm run build-storybook  # static build to storybook-static/
-npm run build            # typecheck + build-storybook
-npm run verify           # drives the running Storybook in Chrome (see below)
-```
+| Command | What it proves |
+|---|---|
+| `npm run typecheck` | Types, including component props derived from contracts |
+| `npm run lint` | ESLint (JS recommended + typescript-eslint + react-hooks) |
+| `npm run test` | Vitest: contract conformance, analyzer units, graph invariants, component behaviour |
+| `npm run sei:graph` | Regenerate `.sei/graph.json` from source |
+| `npm run test:e2e` | Playwright against Storybook: renders, token experiments, a11y + axe, keyboard, destructive flow |
+| `npm run validate` | `lint` → `typecheck` → `test` → `build-storybook` — the CI gate |
+| `npm run chromatic` | Visual review of every story |
 
-`npm run verify` expects Storybook to already be running on port 6006. It drives
-a real headless Chrome over the DevTools Protocol and asserts the token
-experiments, accessibility basics, and keyboard reachability. There are no test
-dependencies; it uses Node's built-in WebSocket client.
+`npm run verify` is kept as an alias for `npm run test:e2e`.
 
-## What is in here
+## Architecture
 
 ```
 src/
-  tokens/tokens.css        primitives, semantic roles, component tokens
-  styles/globals.css       reset, baseline typography, focus backstop
-  components/
-    Button/                primary | secondary | destructive | ghost; sm | md | lg
-    Input/                 labelled, with hint and error states
-    Card/                  title, description, body, footer
-  compositions/
-    SettingsPanel/         three Cards, three Inputs, all four Button variants
-    AccountForm/           validation, disabled submit, destructive confirmation
-  playground/
-    StyleProvider.tsx      scoped CSS variable override (the only non-CSS logic)
-    Playground.stories.tsx the controls
-scripts/verify.mjs         the verification harness
+  tokens/tokens.css        the three token layers: primitive, semantic, component
+  styles/globals.css       reset + baseline typography + focus backstop
+  contracts/               *.contract.ts — the machine-readable contract per component
+  components/              Button, Input, Card, Checkbox, Select, Dialog,
+                           DropdownMenu, Tabs, Tooltip, Table  (+ stories, CSS)
+  compositions/            SettingsPanel, AccountForm — realistic test environments
+  playground/              StyleProvider (scoped token overrides) + Playground story
+  graph/                   the analyzer: TS → CSS → contracts → evidence graph
+  explorer/                GraphExplorer story (react-flow UI over .sei/graph.json)
 ```
 
-The compositions are test environments, not product pages. They exist to give a
-token change somewhere realistic to land.
+Each component directory is self-contained: `Comp.tsx`, `Comp.css`,
+`Comp.stories.tsx`, `index.ts`. The CSS has no raw design values — every
+`color`, `border`, `radius`, `height` and so on is a `var()` reference
+(enforced by `e2e/design-values.spec.ts` and `tests/graph.invariants.test.ts`).
 
-## The three token layers
+## Token system
 
-1. **Primitives** — raw values with no opinion about use: `--blue-500`,
-   `--space-4`, `--radius-md`.
+1. **Primitives** — raw values with no opinion about use: `--blue-600`,
+   `--space-4`, `--radius-md`, `--duration-fast`.
 2. **Semantic roles** — what a value *means*: `--color-action`,
    `--color-destructive`, `--color-surface`.
 3. **Component tokens** — decisions a component owns: `--button-height-md`,
-   `--card-padding`.
+   `--card-padding`, `--tooltip-max-width`.
 
-Components reference the semantic and component layers only, never primitives
-directly. That is what lets a single decision have exactly one owner.
+Components reference semantic and component layers only — never a primitive
+colour directly (enforced). That single rule is what gives every decision
+exactly one owner.
 
-### One subtlety worth knowing
+**Contrast.** `--color-action` resolves to `--blue-600`, not `--blue-500`:
+white text on the fill **and** the colour as text on white both clear WCAG AA
+(4.5:1) at 16px. The ramp steps down through 700/800 for hover/active. This
+was a deliberate fix the axe scan caught — see `src/tokens/tokens.css`.
 
-`--button-radius`, `--input-radius` and `--card-radius` are **not** declared in
-`tokens.css`, even though they read like they should be. Writing
-`--button-radius: var(--radius-md)` in the `:root` block resolves the alias
-once, at the root, and every descendant inherits that already-computed value —
-so overriding `--radius-md` further down the tree has no effect. Button would
-appear to work only because the Playground happens to redeclare it.
-
-Instead each component declares the dependency at the point of use:
+**One subtlety worth knowing.** `--button-radius`, `--input-radius` and
+`--card-radius` are deliberately **not** declared in `tokens.css`. Declaring
+`--button-radius: var(--radius-md)` at `:root` would resolve the alias once,
+at the root, so overriding `--radius-md` lower in the tree would have no
+effect. Instead each component declares the dependency at the point of use:
 
 ```css
 border-radius: var(--button-radius, var(--radius-md));
 ```
 
-The inner `var()` is a default, resolved where it is used, so overriding either
-the primitive or the component token works. See the comment block in
-`tokens.css`.
+The inner `var()` is a default, resolved where used. See the comment block in
+`tokens.css` and §3 of `src/graph/SOURCE-PATTERNS.md`.
 
-## The Playground
+## Component contracts
 
-`Design System / Playground` in Storybook renders the **real** compositions, not
-a mock, inside a `StyleProvider` that writes CSS custom property overrides onto a
-scoping attribute. Change a control and the components underneath — the same ones
-in the component stories and the same ones in the compositions — respond.
+Every component ships a machine-readable `*.contract.ts` declared with
+`defineContract()` — For example `Button.contract`:
 
-`StyleProvider` is deliberately not a theme engine. It does not resolve token
-names, does not know about components, and does not merge themes; it sets custom
-properties on a wrapper and lets CSS cascade do the rest. If token values ever
-need to be computed rather than overridden, that is the point at which it would
-need to grow, and it should be resisted until then.
-
-## The three experiments
-
-Each is a control in the Playground *and* a named story, so both the interactive
-and the static versions are reviewable. All three are asserted in
-`scripts/verify.mjs`.
-
-**A — `--button-height-md: 40px → 48px`**
-Moves every `size="md"` Button, in the component stories and in both
-compositions. `size="sm"` Buttons stay at 32px, because they read their own
-token. This is the argument for component-level tokens over a global scale: the
-default control height is one decision with one owner.
-
-**B — `--radius-md: 8px → 12px`**
-Moves Button and Input, which both default to that primitive. It does **not**
-move Card, because `--card-radius` defaults to `--radius-lg` — surfaces and
-controls are a different decision, and should be able to differ.
-
-**C — `--color-action`**
-Moves every primary Button in both compositions. It does not move destructive
-Buttons, which use `--color-destructive`; an irreversible action should not
-silently adopt the brand colour.
-
-## Chromatic
-
-The build is Chromatic-ready. To run a visual review:
-
-```bash
-npx chromatic login
-npm run chromatic
+```ts
+{
+  name: 'Button',
+  rootClass: 'sei-button',
+  foundation: 'native <button> — platform owns activation, focus, disabled',
+  props: { variant: ['primary', 'secondary', 'destructive', 'ghost'],
+           size: ['sm', 'md', 'lg'] },
+  states: ['hover', 'focus-visible', 'active', 'disabled'],
+}
 ```
 
-Then every pull request gets a diff showing exactly what a token change did to
-every story, which is the whole reason this system is set up this way. No
-credentials live in the repository — Chromatic reads `CHROMATIC_PROJECT_TOKEN`
-from the environment in CI.
+The contract is the single source of truth, and three things read it:
 
-For the first run, the diff will be large because there is no baseline yet.
-Subsequent token changes are the interesting ones.
+- **Types.** Component prop types derive from the contract (`props.variant`)
+  so a value outside the contract cannot compile at a call site.
+- **Storybook.** Story `argTypes` are generated from the contract, so the
+  controls always match the contract surface.
+- **Tests.** `tests/contracts.test.ts` walks the barrel and checks: every
+  contract file is exported, re-exported by exactly one component (the same
+  structural binding the graph analyzer relies on), every prop value and
+  modifier has a `<rootClass>--<value>` CSS rule, every state has a styled
+  rule (`:state`, `[data-state=...]` or `[data-...]`), and every state,
+  modifier and prop value is demonstrated in the component's stories — so
+  Storybook documentation cannot silently fall behind the contract.
+
+The `foundation` field states the accessibility boundary, so a reviewer can
+audit it: *what does the platform own here, and what are we painting on top?*
+
+## Radix vs native — the boundary rule
+
+| Pattern | Chosen |
+|---|---|
+| Checkbox, Button, Input, Table | **native elements** — a pattern with a native equivalent stays native |
+| Select, Dialog, Menu, Tabs, Tooltip | **Radix Primitives** — ARIA-rich patterns with no native element |
+
+The rule: native for what the platform already does well, Radix for what it
+can't. Native checkbox gives `:checked`/`:focus-visible`/`:disabled` from the
+platform; Radix Select provides listbox semantics, type-ahead and Escape that
+a native `<select>` cannot be styled into (options are not styleable). Each
+Radix component's contract `foundation` records what the primitive owns
+(focus trap, aria wiring) so CSS only paints surface. The alternative
+(Base UI, currently RC) is documented in this rationale and was not chosen
+for maturity.
+
+## Storybook and state coverage
+
+Every component has stories covering every contract state — a `States` story
+that renders `hover`, `focus-visible`, `disabled` variants (for components
+whose states are CSS pseudo-classes), and an `OpenState` story whose play
+function opens the popup so `[data-state="open"]`, `[data-highlighted]`,
+`[data-disabled]` are inspectable and Chromatic-freezable. `tests/contracts.test.ts`
+enforces that states, modifiers and prop values are never undocumented.
+
+Components use Radix only where the pattern needs it; for portal-based
+popups, stories assert through `document` (Radix portals to `document.body`,
+outside the story root).
+
+## The dependency graph and evidence
+
+`npm run sei:graph` builds `.sei/graph.json` from source alone — TypeScript
+imports, JSX composition, CSS selectors/variables, and now contracts. Every
+node (token / component / variant / story / state) carries `file:line`
+**evidence**; every edge (reference / usage / fallback / variant / state /
+story / composition / contract) is a source-derived, inspectable claim. It is
+deterministic and byte-stable: `tests/graph.invariants.test.ts` asserts the
+committed graph is exactly what the current sources produce, so a stale graph
+cannot silently serve old facts.
+
+Evidence reading rules that keep it honest (see `src/graph/SOURCE-PATTERNS.md`):
+
+- Element-scoped state rules like `.sei-tabs__trigger[data-state='active']`
+  attribute to the block root — Radix styles states on children.
+- `:not(...)` never claims a state it excludes.
+- A selector name is only a root class when it appears in a class **context**
+  (JSX `className` / array literals), never from `position="popper"`.
+- Primitive colour tokens may sit unused (they are a palette scale); semantic
+  and component tokens must be referenced somewhere.
+
+The **Explorer** story (`Design System/Explorer`) renders the graph with
+React Flow; selecting a node shows its upstream, downstream and transitive
+impact.
+
+## Testing strategy
+
+Four layers, one question each:
+
+1. **Analyzer units** (`tests/analyzer.test.ts`) — does the evidence
+   extractor read selectors correctly?
+2. **Contract conformance** (`tests/contracts.test.ts`) — is the stylesheet,
+   the story coverage and the structural binding faithful to each contract?
+3. **Graph invariants** (`tests/graph.invariants.test.ts`) — freshness, story
+   coverage, colour discipline (no raw colour values in component CSS; no
+   primitive colour reaching a component directly), token discipline.
+4. **Component behaviour** (`tests/components.test.tsx`) — the parts that are
+   ours: class composition, label/`aria-describedby` wiring, table structure.
+5. **e2e** (`e2e/`) — against the running Storybook: every story renders,
+   the three token experiments (one override reaches everything it should and
+   nothing else), no raw design values in shipped CSS, explicit a11y checks +
+   full axe scans (WCAG A/AA), destructive-action confirmation, real Tab
+   traversal and the primitive keyboard flows (Dialog Escape/focus-return,
+   menu arrows, Select type-ahead + Enter, Tabs arrows, Tooltip focus-open).
+6. **Chromatic** — visual review of every story on every PR, which is what
+   makes a one-line token change reviewable as pixels.
+
+The original self-made CDP verification harness (`scripts/verify.mjs`,
+no test dependencies) was deliberately replaced by the Playwright suite — the
+same checks, plus axe and the primitive keyboard flows. Provenance: each e2e
+spec notes which section of the old harness it ported.
+
+Role split: **Vitest** runs in CI's `validate` per commit (fast, no browser);
+**Playwright** is a separate CI job (slower); **Chromatic** runs on PRs.
+
+## Quality gates
+
+`.github/workflows/ci.yml` runs two jobs:
+
+- `validate` — `npm run validate` (lint → typecheck → unit/graph tests →
+  storybook build). Prevents regressions at commit time.
+- `e2e` — installs Chromium, then `npm run test:e2e`. Prevents regressions
+  in the browser.
+
+Chromatic is configured but requires `CHROMATIC_PROJECT_TOKEN` in CI
+environment variables — add it to enable visual review on every PR.
+
+## Decisions and boundaries
+
+- **No Tailwind, no CSS-in-JS.** Plain CSS custom properties keep token
+  dependency *visible* in source and analysable.
+- **Native for native patterns, Radix for the rest** (see above).
+- **No theme engine.** `StyleProvider` is deliberately not a theme engine: it
+  sets custom properties on a scoping wrapper and lets the CSS cascade do the
+  rest. If token values ever need computing, resist until there is a real
+  need.
+- **Point-of-use fallbacks** over root aliases for component radius tokens
+  (see Tokens above).
+- Design-decision log and further rationale live in `docs/` and on the
+  `Design System/Explorer` story's edge types; `src/graph/SOURCE-PATTERNS.md`
+  records every source fact the analyzer relies on with file:line anchors.
 
 ## Limitations
 
-Stated plainly, because a demo that hides its edges is worse than no demo.
+Stated plainly.
 
-- **No build step for tokens.** Tokens are plain CSS custom properties, so there
-  is no type-checking between a token name and its use, and a typo fails
-  silently by falling back. This is the deliberate trade for transparency; a
-  token pipeline (Style Dictionary and similar) is the way to close it if this
-  grows.
-- **Chromatic is not wired to CI.** The config and script are here; the workflow
-  and project token are yours to add.
-- **The verification harness is ad hoc.** It asserts a specific set of token and
-  accessibility facts against a running Storybook. It is not a general test
-  framework, and it will need extending as components are added.
-- **No dark mode or theme switching.** The token structure would support it, but
-  it is out of scope and unbuilt.
-- **Latin text only.** No i18n or RTL work has been done.
-
-## Explorer
-
-The design system graph explorer visualizes dependencies between tokens, components, variants, states, and stories as an interactive graph.
-
-- **Storybook**: `npm run storybook` → `Design System/Explorer`
-- **Regenerate graph**: `npm run sei:graph` (deterministic, source-derived)
-- **Query API**: `src/graph/query.ts` (`findNodes`, `getUpstream`, `getDownstream`, `getImpact`, `getFallbacks`)
-- **Data**: `.sei/graph.json` (canonical graph with evidence)
-
-# About this project
-
-This is a tiny design system that makes a single point clearly: **changing one token changes exactly what the design says it should change, no more and no less.**
-
-Three experiments (A: button height, B: radius defaults, C: brand action color) demonstrate:
-- Decisions live at the right layer (primitives → semantic → component tokens)
-- Component-level tokens let controls differ from surfaces
-- Dependencies are explicit (fallbacks via `var(..., fallback)` not root aliases)
-- Evidence-based graph captures those relationships for inspection and reasoning
-
-The Explorer UI visualizes the canonical graph (tokens/components/variants/states/stories + reference/usage/fallback/variant/state/story/composition) with React Flow + Dagre. The graph is source-derived, deterministic, and includes file:line evidence for every relationship.
+- **No build-time token pipeline.** A token typo fails silently by falling
+  back. The contract tests plus the raw-value scans catch the common cases;
+  Style Dictionary would close the rest if this grows.
+- **No dark mode.** The token structure supports it; it is unbuilt.
+- **Latin text only.** No i18n or RTL.
+- **Stories as documentation** is enforced for states/modifiers/prop values,
+  but a story that renders a component without demonstrating it will not be
+  caught automatically — that is what Chromatic is for.

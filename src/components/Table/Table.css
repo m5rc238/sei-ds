@@ -1,0 +1,48 @@
+/* =============================================================================
+   Table
+   -----------------------------------------------------------------------------
+   Native table semantics, token-driven rhythm. `dense` only trades padding —
+   it never changes type sizes, borders or colours, so a dense table is still
+   recognisably the same table.
+   ============================================================================= */
+
+.sei-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+
+.sei-table th {
+  padding: var(--table-cell-padding-y) var(--table-cell-padding-x);
+
+  font-size: var(--table-header-font-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-align: left;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.sei-table td {
+  padding: var(--table-cell-padding-y) var(--table-cell-padding-x);
+
+  border-bottom: var(--border-width) solid var(--color-border);
+  vertical-align: top;
+}
+
+.sei-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sei-table--dense td,
+.sei-table--dense th {
+  padding-block: var(--space-1);
+}
+
+.sei-table__empty {
+  padding-block: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+}

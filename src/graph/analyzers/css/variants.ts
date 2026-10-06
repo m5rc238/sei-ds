@@ -19,11 +19,11 @@
  * a state is a condition, not a value the caller chooses.
  */
 
-import type { SeiGraphBuilder } from '../../graph';
-import type { VariantEvidence } from '../ts/components';
-import { modifiersIn } from '../ts/components';
-import { variantNodeId } from '../../ids';
-import type { ParsedCss } from './parse';
+import type { SeiGraphBuilder } from '../../graph.ts';
+import type { VariantEvidence } from '../ts/components.ts';
+import { modifiersIn } from '../ts/components.ts';
+import { variantNodeId } from '../../ids.ts';
+import type { ParsedCss } from './parse.ts';
 
 /** Pseudo-classes treated as states, and the states they name. */
 const STATE_PSEUDO_CLASSES: Readonly<Record<string, string>> = {
@@ -70,20 +70,24 @@ export function analyzeCssVariants(
 
     for (const rule of sheet.rules) {
       // Skip declarations; only selectors carry variant and state meaning.
-      const { modifiers, pseudoClasses, elements } = analyzeSelector(rule.selector);
-
-      // A BEM element selector (`__header`, `__title`) styles one part of the
-      // component; it is not a variant of the component.
-      if (elements.length > 0) continue;
+      const { modifiers, pseudoClasses, elements, dataStates } = analyzeSelector(rule.selector);
+      const base = baseClassOf(rule.selector);
 
       for (const modifier of modifiers) {
+        // A BEM element selector (`__header`, `__title`) styles one part of the
+        // component; it is not a variant of the component. Modifier evidence
+        // stays gated on this — state evidence does not: Radix-backed
+        // components style their states on child elements
+        // (`.sei-tabs__trigger[data-state='active']`), and that state belongs
+        // to the component as a whole. The root-class gate below still applies
+        // to both.
+        if (elements.length > 0) break;
+
         // A modifier only describes a variant of a component when its base
         // class is that component's own root class. Without this gate a shared
         // stylesheet would invent variants: `.sei-canvas--surface` in
         // compositions.css belongs to the Storybook page shell, not to any
         // composition that happens to load that file (§3.1).
-        const base = baseClassOf(rule.selector);
-
         for (const owner of ownersForSheet) {
           const roots = rootClasses.get(owner.componentId);
           if (roots && !roots.has(base)) continue;
@@ -102,23 +106,25 @@ export function analyzeCssVariants(
         }
       }
 
-      // A pseudo-class is a state. Whether it belongs to the component or to one
-      // of its variants depends on the selector: `.sei-input:hover` is a
-      // component state, `.sei-button--primary:hover` is a state *of that
-      // variant*. Flattening the two would lose a real distinction (§16).
-      for (const pseudo of pseudoClasses) {
-        const stateName = STATE_PSEUDO_CLASSES[pseudo];
-        if (!stateName) continue;
+      // A state is a condition, not a value the caller chooses. It comes from
+      // a pseudo-class (`:hover`) or a data attribute Radix sets
+      // (`[data-state='active']`, `[data-highlighted]`). Whether it belongs to
+      // the component or to one of its variants depends on the selector:
+      // `.sei-input:hover` is a component state, `.sei-button--primary:hover`
+      // is a state *of that variant*. Flattening the two would lose a real
+      // distinction (§16).
+      const stateNames = [
+        ...new Set([
+          ...pseudoClasses.filter((name) => name in STATE_PSEUDO_CLASSES),
+          ...dataStates,
+        ]),
+      ];
 
-        const base = baseClassOf(rule.selector);
-
+      for (const stateName of stateNames) {
         for (const owner of ownersForSheet) {
           const roots = rootClasses.get(owner.componentId);
           if (roots && !roots.has(base)) continue;
 
-          // `.sei-input:hover` is a state of the component.
-          // `.sei-button--primary:hover` is a state of that *variant*, and
-          // flattening the two would lose a real distinction (§16).
           const stateNameForOwner =
             modifiers.length > 0 ? `${modifiers[0]}::${stateName}` : stateName;
 
@@ -157,8 +163,12 @@ export function analyzeCssVariants(
 function baseClassOf(selector: string): string {
   const match = /(?<![\w-])([a-z0-9]+(?:-[a-z0-9]+)*)--(?=[a-z0-9])/.exec(selector);
   if (match) return match[1]!;
-  const plain = /(?<![\w-.])([a-z][a-z0-9-]*)/.exec(selector);
-  return plain?.[1] ?? '';
+  // First class in the selector. Written against the dot rather than a bare
+  // word because the earlier word-boundary form silently returned '' for
+  // `.sei-input:hover` (the lookbehind rejected the position after '.'), which
+  // dropped every component-level state from plain class selectors.
+  const cls = /\.(?=[a-z])([a-z][a-z0-9-]*)/.exec(selector);
+  return cls?.[1] ?? '';
 }
 
 function pushEvidence(
@@ -276,16 +286,23 @@ function describeOrigins(evidence: VariantEvidence[]): string {
 }
 
 /**
- * Pull modifiers, pseudo-classes and BEM elements out of a selector.
+ * Pull modifiers, pseudo-classes, data-attribute states and BEM elements out
+ * of a selector.
  *
  * Kept deliberately small and explicit. A general selector parser would be more
  * capable but would also make it easier to connect selectors the analyzer does
  * not actually understand.
+ *
+ * Data attributes are read from a copy of the selector with `:not()`/`:is()`/
+ * `:where()`/`:has()` contents stripped first, so
+ * `:hover:not([data-state='active'])` does not claim the `active` state —
+ * it is being explicitly excluded there.
  */
 export function analyzeSelector(selector: string): {
   modifiers: string[];
   pseudoClasses: string[];
   elements: string[];
+  dataStates: string[];
 } {
   const modifiers = modifiersIn(selector);
   const elements: string[] = [];
@@ -308,5 +325,20 @@ export function analyzeSelector(selector: string): {
     pseudoClasses.push(name);
   }
 
-  return { modifiers, pseudoClasses, elements };
+  // Data-attribute states. Only the ones Radix actually uses as states are
+  // recognized: `data-state` with a value (`[data-state='open']` → `open`)
+  // and the bare presence attributes `data-highlighted` / `data-disabled`.
+  // Any other `data-*` attribute is a wiring detail, not a state.
+  const cleaned = selector.replace(/:(?:not|is|where|has)\([^)]*\)/g, '');
+  const dataStates: string[] = [];
+  const stateAttrRe = /\[data-state=['"]([a-z-]+)['"]\]/g;
+  while ((match = stateAttrRe.exec(cleaned)) !== null) {
+    dataStates.push(match[1]!);
+  }
+  const presenceAttrRe = /\[data-(highlighted|disabled)\]/g;
+  while ((match = presenceAttrRe.exec(cleaned)) !== null) {
+    dataStates.push(match[1]!);
+  }
+
+  return { modifiers, pseudoClasses, elements, dataStates };
 }

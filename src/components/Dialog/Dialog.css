@@ -1,0 +1,71 @@
+/* =============================================================================
+   Dialog
+   -----------------------------------------------------------------------------
+   Overlay and panel are separate layers: the scrim takes --z-overlay, the
+   panel takes --z-popup, so "what is on top" stays a system decision from
+   tokens.css rather than a number invented here.
+   ============================================================================= */
+
+.sei-dialog__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+
+  background-color: var(--color-overlay);
+}
+
+.sei-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-popup);
+
+  width: var(--dialog-width);
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
+  overflow: auto;
+
+  padding: var(--dialog-padding);
+
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  /* --dialog-radius resolves at the point of use to the --radius-lg
+     primitive; see tokens.css for why the alias is not declared there. */
+  border-radius: var(--dialog-radius, var(--radius-lg));
+  box-shadow: var(--shadow-elevated);
+}
+
+.sei-dialog[data-state='open'] {
+  animation: sei-dialog-in var(--duration-fast) ease;
+}
+
+@keyframes sei-dialog-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sei-dialog__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+
+.sei-dialog__description {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.sei-dialog__body {
+  margin-top: var(--space-4);
+}
+
+.sei-dialog__close {
+  margin-top: var(--space-4);
+}

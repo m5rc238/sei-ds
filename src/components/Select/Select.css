@@ -1,0 +1,131 @@
+/* =============================================================================
+   Select
+   -----------------------------------------------------------------------------
+   The trigger derives its metrics from the input tokens (--input-height,
+   --input-padding-x, --input-font-size, --input-radius) at the point of use,
+   so a Select and an Input sit on the same baseline without a shared
+   component token that would couple them. See tokens.css for why.
+   ============================================================================= */
+
+.sei-select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--input-gap);
+}
+
+.sei-select__label {
+  display: block;
+}
+
+.sei-select__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  width: 100%;
+  height: var(--input-height);
+  padding-inline: var(--input-padding-x);
+
+  background-color: var(--color-input-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-input-border);
+  border-radius: var(--select-radius, var(--input-radius, var(--radius-md)));
+
+  font-size: var(--input-font-size);
+  line-height: var(--line-height-normal);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.sei-select__trigger:hover:not(:disabled) {
+  border-color: var(--color-input-border-hover);
+}
+
+.sei-select__trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-focus-ring);
+}
+
+.sei-select__trigger:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+.sei-select__trigger[data-state='open'] {
+  border-color: var(--color-focus-ring);
+}
+
+.sei-select__chevron,
+.sei-select__check {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.sei-select__content {
+  min-width: var(--radix-select-trigger-width, var(--menu-min-width));
+  /* The popper measures this width for placement; keep radius/shadow/border
+     identical to the menu surface so both floaters read as one family. */
+  padding: var(--menu-padding);
+
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--select-radius, var(--input-radius, var(--radius-md)));
+  box-shadow: var(--shadow-elevated);
+  z-index: var(--z-popup);
+}
+
+.sei-select__content[data-state='open'] {
+  animation: sei-select-in var(--duration-fast) ease;
+}
+
+@keyframes sei-select-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sei-select__item {
+  padding: var(--space-2) var(--menu-item-padding-x);
+
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-tight);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.sei-select__item[data-highlighted] {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.sei-select__item[data-state='checked'] {
+  color: var(--color-action);
+  font-weight: var(--font-weight-medium);
+}
+
+.sei-select__item[data-disabled] {
+  color: var(--color-text-muted);
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.sei-select__indicator {
+  margin-left: auto;
+  padding-left: var(--space-2);
+  display: inline-flex;
+}
+
+.sei-select__item[data-state='unchecked'] .sei-select__indicator {
+  visibility: hidden;
+}

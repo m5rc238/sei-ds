@@ -11,10 +11,10 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { componentId, toRepoPath } from '../../ids';
-import type { SeiGraphBuilder } from '../../graph';
-import type { RepoPath, SourceLocation } from '../../types';
-import { isIntrinsicTag, positionOf, tagNameOf } from './program';
+import { componentId, toRepoPath } from '../../ids.ts';
+import type { SeiGraphBuilder } from '../../graph.ts';
+import type { RepoPath, SourceLocation } from '../../types.ts';
+import { isIntrinsicTag, positionOf, tagNameOf } from './program.ts';
 
 export type ComponentInfo = {
   id: string;
@@ -37,7 +37,7 @@ export type VariantEvidence = {
   propName: string;
   location: SourceLocation;
   /** The declaration or expression this evidence came from, for the report. */
-  origin: 'union-type' | 'class-template' | 'class-literal' | 'css-modifier' | 'css-pseudo-class';
+  origin: 'union-type' | 'class-template' | 'class-literal' | 'contract' | 'css-modifier' | 'css-pseudo-class';
   originText: string;
 };
 
@@ -326,7 +326,7 @@ function resolveComponentBindings(
       const declarations = resolved.getDeclarations() ?? [];
 
       for (const declaration of declarations) {
-        const declName = (declaration as any).name;
+        const declName = (declaration as ts.NamedDeclaration).name;
         if (!declName || !ts.isIdentifier(declName)) continue;
 
         const targetFile = toRepoPath(declaration.getSourceFile().fileName, repoRoot);
@@ -541,22 +541,70 @@ function collectClassNameVariants(
  * class name this analyzer can read, so CSS variant attribution for it stays
  * off rather than guessing from the file name.
  */
+/**
+ * Classes a component can carry on its own root element.
+ *
+ * Only literals in *class contexts* count: an array literal (the
+ * `[root, modifier, className]` join idiom) or a JSX `className`/`class`
+ * attribute. Scanning every string literal in the function was too broad —
+ * `position="popper"` made `popper` a "root class" of Select, the root gate
+ * then rejected every `sei-select` rule, and the component lost all of its
+ * CSS variant and state evidence. Prop values are not class names.
+ *
+ * A BEM element class (`sei-select__trigger`) contributes its block prefix
+ * (`sei-select`): elements are written as `block__element`, so the block IS
+ * the root. Modifier classes (`block--variant`) are skipped — they are
+ * variants, not roots.
+ */
 function findRootClasses(fn: ts.FunctionLikeDeclaration): Set<string> {
   const roots = new Set<string>();
+  const inClassContext = new Set<ts.Node>();
+
+  // Mark every node that sits inside a class context.
+  const mark = (node: ts.Node): void => {
+    if (ts.isArrayLiteralExpression(node)) {
+      const collect = (n: ts.Node) => {
+        inClassContext.add(n);
+        ts.forEachChild(n, collect);
+      };
+      collect(node);
+      return;
+    }
+    if (
+      ts.isJsxAttribute(node) &&
+      ts.isIdentifier(node.name) &&
+      (node.name.text === 'className' || node.name.text === 'class')
+    ) {
+      const collect = (n: ts.Node) => {
+        inClassContext.add(n);
+        ts.forEachChild(n, collect);
+      };
+      collect(node);
+      return;
+    }
+    ts.forEachChild(node, mark);
+  };
+  mark(fn);
 
   const visit = (node: ts.Node) => {
-    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    if (
+      inClassContext.has(node) &&
+      (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
+    ) {
       for (const part of node.text.split(/\s+/)) {
         if (part === '' || part === 'null' || part === 'undefined') continue;
-        if (part.includes('--') || part.includes('__')) continue;
-        if (!/^[a-z][a-z0-9-]*$/.test(part)) continue;
-        roots.add(part);
+        if (part.includes('--')) continue; // modifier, not a root
+        const elementIndex = part.indexOf('__');
+        const candidate =
+          elementIndex > 0 ? part.slice(0, elementIndex) : part;
+        if (!/^[a-z][a-z0-9-]*$/.test(candidate)) continue;
+        roots.add(candidate);
       }
     }
     ts.forEachChild(node, visit);
   };
-
   visit(fn);
+
   return roots;
 }
 

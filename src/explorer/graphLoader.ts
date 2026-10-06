@@ -12,18 +12,20 @@ export async function loadGraph(): Promise<SeiGraph> {
     if (res.ok) {
       return (await res.json()) as SeiGraph;
     }
-  } catch (err) {
+  } catch {
     // ignore and fall back
   }
 
-  // Dynamic import fallback when running in dev/Vite context
+  // Dynamic import fallback when running in dev/Vite context. Vite JSON
+  // imports expose the payload as `default` on the module namespace.
   try {
     const mod = await import('../../.sei/graph.json');
-    return mod as any as SeiGraph;
+    return (mod.default ?? mod) as SeiGraph;
   } catch (err) {
     // last resort: throw
     throw new Error(
       'Failed to load graph.json. Run `npm run sei:graph` to generate .sei/graph.json and ensure /sei is served.',
+      { cause: err },
     );
   }
 }

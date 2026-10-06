@@ -5,7 +5,7 @@
  * identity via canonical IDs, and adds a minimal set of fields React Flow
  * and Dagre need for layout. No layout math is performed here.
  */
-import type { SeiEdge, SeiGraph, SeiNode } from './types';
+import type { SeiEdge, SeiGraph, SeiNode } from './types.ts';
 
 export type RfNode = {
   id: string;

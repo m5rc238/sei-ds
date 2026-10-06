@@ -1,0 +1,25 @@
+/* =============================================================================
+   Tooltip
+   -----------------------------------------------------------------------------
+   One appearance: the content exists only while the tooltip is open (Radix
+   unmounts it when closed), so there is no closed state to style — see the
+   contract for why the state list is empty.
+   ============================================================================= */
+
+.sei-tooltip {
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+
+  background-color: var(--color-tooltip-surface);
+  color: var(--color-tooltip-text);
+
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+  /* Point-of-use alias; see the tokens.css note on radius aliases. */
+  border-radius: var(--tooltip-radius, var(--radius-sm));
+  max-width: var(--tooltip-max-width);
+  z-index: var(--z-popup);
+}
+
+.sei-tooltip__arrow {
+  fill: var(--color-tooltip-surface);
+}

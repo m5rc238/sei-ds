@@ -56,3 +56,21 @@ export const Filled: Story = {
 export const Disabled: Story = {
   args: { disabled: true },
 };
+
+export const States: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hover changes the border, focus-visible draws the ring, disabled dims the field — all three are CSS states, not Storybook args. Tab through the row and hover the inputs to see them.',
+      },
+    },
+  },
+  render: (args) => (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
+      <Input {...args} />
+      <Input {...args} disabled />
+      <Input {...args} error="Invalid value." />
+    </div>
+  ),
+};

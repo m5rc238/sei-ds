@@ -11,7 +11,7 @@
  */
 
 import postcss, { type AtRule, type ChildNode, type Declaration, type Rule } from 'postcss';
-import type { RepoPath } from '../types.ts';
+import type { RepoPath } from '../../types.ts';
 
 /** A single declaration, with 1-based source position (§7). */
 export type CssDeclaration = {
@@ -90,7 +90,7 @@ export function parseCss(css: string, file: RepoPath): ParsedCss {
     root = postcss.parse(css, { from: file });
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`PostCSS failed to parse ${file}: ${reason}`);
+    throw new Error(`PostCSS failed to parse ${file}: ${reason}`, { cause: error });
   }
 
   const rules: CssRule[] = [];

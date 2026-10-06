@@ -1,6 +1,8 @@
 import { useId, type InputHTMLAttributes } from 'react';
 import './Input.css';
 
+export { inputContract } from '../../contracts/input.contract';
+
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   /** Visible label. Rendered as a real <label> bound to the input. */
   label: string;

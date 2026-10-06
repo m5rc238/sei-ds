@@ -24,10 +24,10 @@
 
 import path from 'node:path';
 import ts from 'typescript';
-import { componentId, storyId, toRepoPath, variantNodeId } from '../../ids';
-import type { SeiGraphBuilder } from '../../graph';
-import type { RepoPath, SourceLocation } from '../../types';
-import { isIntrinsicTag, positionOf, propertyName, tagNameOf } from './program';
+import { componentId, storyId, toRepoPath, variantNodeId } from '../../ids.ts';
+import type { SeiGraphBuilder } from '../../graph.ts';
+import type { RepoPath, SourceLocation } from '../../types.ts';
+import { isIntrinsicTag, positionOf, propertyName, tagNameOf } from './program.ts';
 
 /** Storybook's id derivation, metadata only (§17). */
 function deriveStorybookId(title: string | undefined, exportName: string): string | undefined {
@@ -402,7 +402,7 @@ function resolveLocalComponents(
       const resolved = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
 
       for (const declaration of resolved.getDeclarations() ?? []) {
-        const declName = (declaration as any).name;
+        const declName = (declaration as ts.NamedDeclaration).name;
         if (!declName || !ts.isIdentifier(declName)) continue;
         bindings.set(
           element.name.text,

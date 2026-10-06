@@ -5,7 +5,7 @@
  * direction-aware (TB) and uses simple defaults; the caller may tune later.
  */
 import dagre from '@dagrejs/dagre';
-import type { RfEdge, RfNode } from './reactFlowAdapter';
+import type { RfEdge, RfNode } from './reactFlowAdapter.ts';
 
 export type LayoutOptions = {
   direction?: 'TB' | 'LR' | 'BT' | 'RL';
