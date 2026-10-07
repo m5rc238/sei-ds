@@ -101,7 +101,7 @@ const meta = {
     cardRadius: 'var(--radius-lg)',
     cardPadding: 'var(--space-6)',
     fontSizeMd: '16px',
-    colorAction: '#3b82f6',
+    colorAction: '#2563eb',
     colorDestructive: '#dc2626',
     colorSurface: '#ffffff',
     radiusMd: '8px',

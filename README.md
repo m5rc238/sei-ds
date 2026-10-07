@@ -24,7 +24,7 @@ npm run storybook        # http://localhost:6006
 |---|---|
 | `npm run typecheck` | Types, including component props derived from contracts |
 | `npm run lint` | ESLint (JS recommended + typescript-eslint + react-hooks) |
-| `npm run test` | Vitest: contract conformance, analyzer units, graph invariants, component behaviour |
+| `npm run test` | Vitest: contract conformance, analyzer units, graph invariants, component behaviour, and every story run as a browser test with an automatic axe audit (@storybook/addon-vitest) |
 | `npm run sei:graph` | Regenerate `.sei/graph.json` from source |
 | `npm run test:e2e` | Playwright against Storybook: renders, token experiments, a11y + axe, keyboard, destructive flow |
 | `npm run validate` | `lint` → `typecheck` → `test` → `build-storybook` — the CI gate |

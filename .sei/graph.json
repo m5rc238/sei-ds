@@ -2037,6 +2037,22 @@
         }
       ]
     },
+    "story:src/tokens/Colors.stories.tsx#Primitives": {
+      "id": "story:src/tokens/Colors.stories.tsx#Primitives",
+      "type": "story",
+      "name": "Primitives",
+      "exportName": "Primitives",
+      "file": "src/tokens/Colors.stories.tsx",
+      "title": "Design System/Colors Primitives",
+      "storybookId": "design-system-colors-primitives--primitives",
+      "evidence": [
+        {
+          "file": "src/tokens/Colors.stories.tsx",
+          "line": 107,
+          "column": 14
+        }
+      ]
+    },
     "token:blue-500": {
       "id": "token:blue-500",
       "type": "token",
@@ -11959,6 +11975,16 @@
         "file": "src/styles/globals.css",
         "line": 18,
         "column": 3
+      }
+    },
+    {
+      "level": "info",
+      "code": "story-unmapped",
+      "message": "Story \"Primitives\" (src/tokens/Colors.stories.tsx) could not be mapped to a component: no meta.component and no unambiguous static JSX usage. The story node exists; its component relationship does not.",
+      "source": {
+        "file": "src/tokens/Colors.stories.tsx",
+        "line": 107,
+        "column": 14
       }
     }
   ]
