@@ -1,8 +1,5 @@
 import type { InputHTMLAttributes } from 'react';
-import { checkboxContract } from '../../contracts/checkbox.contract';
 import './Checkbox.css';
-
-export { checkboxContract };
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   /** Visible label. The <label> element wraps both the input and the text, so

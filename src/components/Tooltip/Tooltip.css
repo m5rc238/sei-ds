@@ -2,8 +2,7 @@
    Tooltip
    -----------------------------------------------------------------------------
    One appearance: the content exists only while the tooltip is open (Radix
-   unmounts it when closed), so there is no closed state to style — see the
-   contract for why the state list is empty.
+   unmounts it when closed), so there is no closed state to style.
    ============================================================================= */
 
 .sei-tooltip {

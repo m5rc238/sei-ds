@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
-import { tabsContract } from '../../contracts/tabs.contract';
 import './Tabs.css';
-
-export { tabsContract };
 
 export interface TabItem {
   value: string;

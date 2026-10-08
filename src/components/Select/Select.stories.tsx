@@ -17,7 +17,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Radix Select: listbox semantics, type-ahead, Escape. The trigger is a real button with a bound label; metrics derive from the input tokens so it lines up with Input. Contract states: open, highlighted, hover, disabled.',
+          'Radix Select: listbox semantics, type-ahead, Escape. The trigger is a real button with a bound label; metrics derive from the input tokens so it lines up with Input. Styled states: open, highlighted, hover, disabled.',
       },
     },
   },

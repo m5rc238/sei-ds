@@ -1,8 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import './Card.css';
 
-export { cardContract } from '../../contracts/card.contract';
-
 // `title` is omitted from the DOM attributes because a Card's title is content
 // (ReactNode, rendered as an <h3>), not the HTML `title` tooltip attribute.
 export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {

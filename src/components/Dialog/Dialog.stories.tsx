@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Radix Dialog: focus is trapped, Escape closes, focus returns to the trigger. The single contract state is `open` — closed content is unmounted, not styled. See Dialog.css for the overlay/panel layering.',
+          'Radix Dialog: focus is trapped, Escape closes, focus returns to the trigger. The single styled state is `open` — closed content is unmounted, not styled. See Dialog.css for the overlay/panel layering.',
       },
     },
   },

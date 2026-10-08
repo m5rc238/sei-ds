@@ -23,14 +23,13 @@ const renderChecks: [id: string, selector: string, label: string][] = [
   ['compositions-settingspanel--default', '.sei-card', 'SettingsPanel'],
   ['compositions-accountform--default', '.sei-card', 'AccountForm'],
   ['design-system-playground--playground', '.sei-button', 'Playground'],
-  ['design-system-explorer--explorer', '.react-flow__node', 'Graph Explorer'],
 ];
 
 for (const [id, selector, label] of renderChecks) {
   test(`renders: ${label}`, async ({ page }) => {
     await gotoStory(page, id);
-    // Auto-retrying: stories that load asynchronously (the Explorer fetches
-    // the graph) render their first element after gotoStory returns.
+    // Auto-retrying: a story that mounts its first element asynchronously
+    // still passes once it renders.
     await expect(page.locator(selector).first(), `expected at least one ${selector}`).toBeAttached();
   });
 }

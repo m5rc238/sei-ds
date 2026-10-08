@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from './Button';
-import { buttonContract } from '../../contracts/button.contract';
+import type { ButtonVariant, ButtonSize } from './Button';
 
 const meta = {
   title: 'Components/Button',
@@ -10,13 +10,16 @@ const meta = {
     docs: {
       description: {
         component:
-          'A native <button>. Variants carry meaning, sizes carry scale, states come from CSS. Every visual value is a token reference — see Button.css. Control options are read from the Button contract.',
+          'A native <button>. Variants carry meaning, sizes carry scale, states come from CSS. Every visual value is a token reference — see Button.css.',
       },
     },
   },
   argTypes: {
-    variant: { control: 'select', options: buttonContract.props.variant },
-    size: { control: 'select', options: buttonContract.props.size },
+    variant: {
+      control: 'select',
+      options: ['primary', 'secondary', 'destructive', 'ghost'] satisfies ButtonVariant[],
+    },
+    size: { control: 'select', options: ['sm', 'md', 'lg'] satisfies ButtonSize[] },
     disabled: { control: 'boolean' },
   },
   args: {

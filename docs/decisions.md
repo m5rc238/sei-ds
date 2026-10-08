@@ -22,23 +22,22 @@ reach, so listbox semantics, type-ahead and Escape must come from a library.
 The five Radix components chosen here all share that property.
 
 **Rejected alternative.** Base UI (the unstyled successor to MUI's headless
-stack) — currently release-candidate, and Radix's contracts (`data-state`,
-`data-highlighted`, `data-disabled`) are stable and readable, which the whole
-evidence-based graph depends on. Revisit only if Radix stalls.
+stack) — currently release-candidate, and Radix's data attributes
+(`data-state`, `data-highlighted`, `data-disabled`) are stable and readable,
+which our state styling relies on. Revisit only if Radix stalls.
 
-Each contract's `foundation` field states this boundary per component, so the
-claim is auditable in one place.
+The boundary is recorded per component in the code comments next to each Radix
+wrapper, so the claim is auditable in one place.
 
 ## Point-of-use fallbacks, not root aliases, for component radius tokens
 
-See SOURCE-PATTERNS.md §3 and the comment block in `src/tokens/tokens.css`.
+See the comment block in `src/tokens/tokens.css`.
 Root aliasing (`--button-radius: var(--radius-md)`) resolves the primitive
 once at the root and defeats lower-tree override; a two-level
 `var(--button-radius, var(--radius-md))` keeps the dependency at its point of
 use. `--button-radius`, `--input-radius`, `--card-radius`, plus the three
 `--*-radius` aliases used identically by Menu/Dialog/Tooltip, are therefore
-**not** declared in `tokens.css` (they show up as `token-undeclared` info
-diagnostics — expected, not warnings).
+**not** declared in `tokens.css`.
 
 ## The action ramp must pass WCAG AA on both fill and text
 
@@ -46,8 +45,7 @@ diagnostics — expected, not warnings).
 *and* the colour as text on white both clear 4.5:1 at 16px; at blue-500 the
 contrast was 3.68:1. Caught by the axe scan in `e2e/a11y.spec.ts`, which is
 why the scan exists. The 500 step survives as a palette member, unused but
-waiting (unused primitives are legal by invariant; unused semantic/component
-tokens are not).
+waiting.
 
 ## Component radius separation: controls vs surfaces
 
@@ -59,9 +57,7 @@ moves only the controls.
 ## Destructive is not a variant of action
 
 `--color-destructive` is an independent semantic role. Experiment C proves
-that re-colouring the brand never moves a destructive button. This is
-enforced as an invariant: no primitive colour edge may reach a component or
-variant directly, and semantic/component tokens must be referenced.
+that re-colouring the brand never moves a destructive button.
 
 ## Z-index: two layers only
 
@@ -72,12 +68,6 @@ dialogs, tooltips) at `--z-popup` (1000). No other z-index may exist.
 
 `StyleProvider` writes custom properties onto a scoping attribute and stops.
 Computing tokens is a defect of this architecture until a real need appears.
-A token typo fails silently by CSS fallback — the contract tests and raw-value
-scans are the mitigation, and a Style Dictionary-style pipeline is the stated
-future if this grows.
-
-## Storybook state coverage is a tested contract, not a convention
-
-`tests/contracts.test.ts` enforces that every contract state, modifier and
-prop value is styled *and* demonstrated in the component's stories. That is
-what keeps the "documentation" honest when the component drifts.
+A token typo fails silently by CSS fallback — the raw-value scans and the
+story/axe tests are the mitigation, and a Style Dictionary-style pipeline is
+the stated future if this grows.

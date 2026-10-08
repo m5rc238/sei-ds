@@ -1,10 +1,21 @@
 import type { ButtonHTMLAttributes } from 'react';
-import { buttonContract } from '../../contracts/button.contract';
-import type { ButtonVariant, ButtonSize } from '../../contracts/button.contract';
 import './Button.css';
 
-export { buttonContract };
-export type { ButtonVariant, ButtonSize };
+/**
+ * Button API surface.
+ *
+ * Four variants, each with a named semantic purpose — the variant axis is
+ * not a style picker:
+ *
+ *   primary     — the one affirmative action on a screen; --color-action
+ *   secondary   — a real alternative that should not shout; surface roles
+ *   destructive — irreversible action; --color-destructive, never action
+ *   ghost       — low-emphasis action; no chrome until hovered
+ *
+ * Sizes are a scale, not free values.
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual role. Decides which semantic colour tokens apply. */

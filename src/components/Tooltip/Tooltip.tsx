@@ -1,9 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { tooltipContract } from '../../contracts/tooltip.contract';
 import './Tooltip.css';
-
-export { tooltipContract };
 
 export interface TooltipProps {
   /** The tooltip text. Announced through aria-describedby, never as the

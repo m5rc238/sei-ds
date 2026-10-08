@@ -1,8 +1,5 @@
 import type { ReactNode } from 'react';
-import { tableContract } from '../../contracts/table.contract';
 import './Table.css';
-
-export { tableContract };
 
 export interface TableColumn<Row> {
   /** Stable key for this column. */
@@ -31,7 +28,7 @@ export interface TableProps<Row> {
  * A plain data table: real <table>, real <th scope="col">, real
  * <caption> — screen readers announce row/column relationships without any
  * ARIA from us. Presentational: no sorting, no selection; those change the
- * component's contract and are not here yet.
+ * component's API and are not here yet.
  */
 export function Table<Row>({ columns, rows, rowKey, dense, emptyMessage }: TableProps<Row>) {
   const classes = ['sei-table', dense ? 'sei-table--dense' : null].filter(Boolean).join(' ');

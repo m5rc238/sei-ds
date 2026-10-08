@@ -1,10 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { dialogContract } from '../../contracts/dialog.contract';
 import { Button } from '../Button/Button';
 import './Dialog.css';
-
-export { dialogContract };
 
 export interface DialogProps {
   /** Accessible dialog title. Rendered as the real <h2> inside the panel —

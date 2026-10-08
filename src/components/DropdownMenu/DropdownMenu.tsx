@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react';
 import * as MenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { dropdownMenuContract } from '../../contracts/dropdownMenu.contract';
 import './DropdownMenu.css';
-
-export { dropdownMenuContract };
 
 export interface DropdownMenuItem {
   value: string;

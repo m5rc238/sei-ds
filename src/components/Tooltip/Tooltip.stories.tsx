@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Radix tooltip: opens on hover and focus, Escape closes, aria-describedby connects trigger and content. The contract state list is empty on purpose — closed content is unmounted, not styled.',
+          'Radix tooltip: opens on hover and focus, Escape closes, aria-describedby connects trigger and content. There is no styled state list on purpose — closed content is unmounted, not styled.',
       },
     },
   },

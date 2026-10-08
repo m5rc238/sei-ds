@@ -19,7 +19,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Radix dropdown menu: arrows and type-ahead move [data-highlighted], Escape closes, [data-disabled] items are skipped. Sei paints the surface and the rows — see the contract for the state list.',
+          'Radix dropdown menu: arrows and type-ahead move [data-highlighted], Escape closes, [data-disabled] items are skipped. Sei paints the surface and the rows; the styled states are [data-highlighted] and [data-disabled].',
       },
     },
   },

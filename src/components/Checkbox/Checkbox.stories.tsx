@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A native <input type="checkbox"> painted in place. Checked semantics, keyboard toggling and disabled come from the platform. States come from CSS; there are no variant axes — see the contract.',
+          'A native <input type="checkbox"> painted in place. Checked semantics, keyboard toggling and disabled come from the platform. States come from CSS; there are no variant axes.',
       },
     },
   },

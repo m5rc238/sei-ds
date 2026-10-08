@@ -31,7 +31,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A presentational data table with real table semantics (<th scope="col">). `dense` is a density modifier; `emptyMessage` covers the empty case. No sorting or selection yet — those would be contract changes.',
+          'A presentational data table with real table semantics (<th scope="col">). `dense` is a density modifier; `emptyMessage` covers the empty case. No sorting or selection yet — those would be API changes.',
       },
     },
   },

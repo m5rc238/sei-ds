@@ -11,7 +11,6 @@ export default tseslint.config(
       'storybook-static/**',
       'test-results/**',
       'playwright-report/**',
-      '.sei/**',
       'dist/**',
       'coverage/**',
     ],

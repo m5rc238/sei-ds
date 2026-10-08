@@ -28,7 +28,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Radix Tabs: arrow keys move between tabs, each trigger is wired to its panel. The active indicator is the [data-state="active"] border — see the contract for the state list.',
+          'Radix Tabs: arrow keys move between tabs, each trigger is wired to its panel. The active indicator is the [data-state="active"] border.',
       },
     },
   },

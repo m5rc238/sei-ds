@@ -11,9 +11,9 @@ export default defineConfig({
     globals: true,
     projects: [
       {
-        // jsdom suite: contract conformance, analyzer units, graph invariants,
-        // component behaviour. Vitest 5 runs a file only when a project matches
-        // its include, so the unit project declares this explicitly.
+        // jsdom suite: component behaviour. Vitest 5 runs a file only when a
+        // project matches its include, so the unit project declares this
+        // explicitly.
         extends: true,
         test: {
           name: 'unit',
